@@ -53,7 +53,7 @@ gr.wrapper <- function (fn = NULL, enable = TRUE, verbose = FALSE, ...) {
 
             if (!first.time && grw$enable) {
                 grw$A[, 2:grw$n] <- grw$A[, 1:(grw$n-1)]
-                dpar <- scale(par - grw$par.prev)
+                dpar <- scale(par - grw$par.prev, center = FALSE)
                 grw$A[, 1] <- dpar + rnorm(grw$n, sd = grw$eps.sd)
                 grw$par.prev <- par
                 grw$AA <- MGS(grw$A)
