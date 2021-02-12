@@ -11,6 +11,7 @@ gr.wrapper <- function (fn = NULL, enable = TRUE, verbose = FALSE, ...) {
         grw$enable <- enable
         grw$verbose <- verbose
         grw$step.len <- 0.001
+        grw$eps.sd <- .Machine$double.eps^(1/5)
         grw$iter <- 0
         grw.par <- grw
 
@@ -42,9 +43,8 @@ gr.wrapper <- function (fn = NULL, enable = TRUE, verbose = FALSE, ...) {
                 grw$par.prev <- par
                 grw$n <- length(par)
                 if (grw$enable) {
-                    grw$A <- matrix(rnorm(grw$n^2, sd = sqrt(.Machine$double.eps)), grw$n, grw$n)
-                    diag(grw$A) <- 0
-                    diag(grw$A) <- 1 + rowSums(abs(grw$A))
+                    grw$A <- matrix(rnorm(grw$n^2, sd = grw$eps.sd), grw$n, grw$n)
+                    diag(grw$A) <- diag(grw$A) + 1
                 } else {
                     grw$A <- diag(grw$n)
                 }
@@ -53,11 +53,10 @@ gr.wrapper <- function (fn = NULL, enable = TRUE, verbose = FALSE, ...) {
 
             if (!first.time && grw$enable) {
                 grw$A[, 2:grw$n] <- grw$A[, 1:(grw$n-1)]
-                dpar <- par - grw$par.prev
-                grw$A[, 1] <- scale(par - grw$par.prev)
+                dpar <- scale(par - grw$par.prev)
+                grw$A[, 1] <- dpar + rnorm(grw$n, sd = grw$eps.sd)
                 grw$par.prev <- par
                 grw$AA <- MGS(grw$A)
-
                 if (grw$verbose) {
                     print(paste0("Iteration: ", grw$iter))
                     rownames(grw$AA) <- paste0("par", 1:grw$n)
@@ -102,12 +101,21 @@ g1 <- function(x) {
     err.new <- mean(abs(g - g1.new(x)))
     err.default <- mean(abs(g - g1.plain(x)))
     print(round(dig = 6, c(err.new = err.new, err.default = err.default, ratio = err.new/err.default)))
+
+    G <- get("Global", envir = .GlobalEnv)
+    G$r.trace <- c(G$r.trace, err.new - err.default)
+    assign("Global", G, envir = .GlobalEnv)
+
     return (g)
 }
 
+Global <- list(r.trace = c())
 dim = 5
-x_initial = rnorm(dim,sd = 1)
+x_initial = rnorm(dim, sd = 2)
 r.opt <- optim(x_initial, f1, g1, method = "BFGS", control = list(maxit = 100000))
 
 print(r.opt$value)
 print(r.opt$par)
+
+plot(Global$r.trace, pch = 19)
+abline(h = 0)
