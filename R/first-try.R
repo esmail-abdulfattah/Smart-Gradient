@@ -53,7 +53,7 @@ gr.wrapper <- function (fn = NULL, enable = TRUE, verbose = FALSE, ...) {
 
             if (!first.time && grw$enable) {
                 grw$A[, 2:grw$n] <- grw$A[, 1:(grw$n-1)]
-                dpar <- scale(par - grw$par.prev, center = FALSE)
+                dpar <- scale(par - grw$par.prev)
                 grw$A[, 1] <- dpar + rnorm(grw$n, sd = grw$eps.sd)
                 grw$par.prev <- par
                 grw$AA <- MGS(grw$A)
@@ -87,7 +87,7 @@ f1 <- function(x) {   ## Rosenbrock Banana function with higher dimension
   return(res)
 }
 
-g1.new <- gr.wrapper(f1, enable = TRUE, verbose = TRUE)
+g1.new <- gr.wrapper(f1, enable = TRUE, verbose = FALSE)
 g1.plain <- gr.wrapper(f1, enable = FALSE)
 
 g1 <- function(x) {
@@ -100,22 +100,24 @@ g1 <- function(x) {
 
     err.new <- mean(abs(g - g1.new(x)))
     err.default <- mean(abs(g - g1.plain(x)))
-    print(round(dig = 6, c(err.new = err.new, err.default = err.default, ratio = err.new/err.default)))
+    ##print(round(dig = 6, c(err.new = err.new, err.default = err.default, ratio = err.new/err.default)))
 
     G <- get("Global", envir = .GlobalEnv)
-    G$r.trace <- c(G$r.trace, err.new - err.default)
+    G$err.trace <- c(G$err.trace, err.new - err.default)
+    G$default.trace <- c(G$default.trace, err.default)
+    G$new.trace <- c(G$new.trace, err.new)
     assign("Global", G, envir = .GlobalEnv)
 
     return (g)
 }
 
-Global <- list(r.trace = c())
-dim = 5
-x_initial = rnorm(dim, sd = 2)
+Global <- list(err.trace = c(), default.trace = c(), new.trace = c())
+dim = 50
+x_initial = rnorm(dim, mean = 1, sd = 2)
 r.opt <- optim(x_initial, f1, g1, method = "BFGS", control = list(maxit = 100000))
 
 print(r.opt$value)
 print(r.opt$par)
 
-plot(Global$r.trace, pch = 19)
-abline(h = 0)
+plot(Global$new.trace, pch = 19, log = "y", type = "l", lwd = 3, col = "blue")
+lines(Global$default.trace, lwd = 3, lty = 2, col = "red")
