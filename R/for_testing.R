@@ -1,3 +1,5 @@
+
+
 gr.wrapper <- function (fn = NULL, enable = TRUE, verbose = FALSE, ...) {
   stopifnot(!is.null(fn))
   
@@ -65,12 +67,14 @@ gr.wrapper <- function (fn = NULL, enable = TRUE, verbose = FALSE, ...) {
         }
       }
       
-      gg <- numeric(grw$n)
-      for(i in 1:grw$n) {
-        gg[i] <- (grw$fn(par + grw$step.len * grw$AA[, i]) -
-                    grw$fn(par - grw$step.len * grw$AA[, i])) / (2 * grw$step.len)
-      }
+      # gg <- numeric(grw$n)
+      # for(i in 1:grw$n) {
+      #   gg[i] <- (grw$fn(par + grw$step.len * grw$AA[, i]) -
+      #               grw$fn(par - grw$step.len * grw$AA[, i])) / (2 * grw$step.len)}
       
+      trans_fn <- function(x) {Gx = grw$AA%*%x; grw$fn(Gx)}
+      gg = mygrad(trans_fn, solve(grw$AA) %*% par)
+
       grad <- solve(t(grw$AA), gg)
       grw.par <<- grw
       return(grad)
@@ -91,8 +95,8 @@ gr.wrapper <- function (fn = NULL, enable = TRUE, verbose = FALSE, ...) {
 # COSINE #D
 # Generalized_Quartic #D
 
-myFun <- Extended_Freudenstein_Roth ### "Function Name"
-getExactGrad <- gr_Extended_Freudenstein_Roth ### gr_"Function Name"
+myFun <- Rosenbrock_Banana ### "Function Name"
+getExactGrad <- gr_Rosenbrock_Banana ### gr_"Function Name"
 
 myGrad.new <- gr.wrapper(myFun, enable = TRUE, verbose = FALSE)
 myGrad.plain <- gr.wrapper(myFun, enable = FALSE)
@@ -108,26 +112,43 @@ myGrad <- function(x) {
   G <- get("Global", envir = .GlobalEnv)
   G$err.trace <- c(G$err.trace, err.new - err.default)
   G$default.trace <- c(G$default.trace, err.default)
+  G$x_trace_x1 = c(G$x_trace_x1,x[1]) 
+  G$x_trace_x2 = c(G$x_trace_x2,x[2]) 
+  G$y_trace = c(G$y_trace,Rosenbrock_Banana(x))
   G$new.trace <- c(G$new.trace, err.new)
   assign("Global", G, envir = .GlobalEnv)
   
   return (g)
 }
 
-new_avg_MSE <- numeric(100)
-default_avg_MSE <- numeric(100)
+iterations = 1
+new_avg_MSE <- numeric(iterations)
+default_avg_MSE <- numeric(iterations)
 
-for(iter in 1:100)
+mygrad <- function(f,x)
 {
-  Global <- list(err.trace = c(), default.trace = c(), new.trace = c())
+  h = 1e-3
+  res = numeric(length(x))
+  for(i in 1:length(x))
+  {
+    e = numeric(length(x))
+    e[i] = 1
+    res[i] = (f(x+h*e) - f(x-h*e))/(2*h)
+  }
+  return(res)
+}
+
+for(iter in 1:iterations)
+{
+  Global <- list(err.trace = c(), default.trace = c(), new.trace = c(), x_trace_x1 = c(),x_trace_x2 = c(), y_trace = c())
   dim = 5
   x_initial = rnorm(dim, mean = 1, sd = 2)
-  r.opt <- optim(x_initial, myFun, myGrad, method = "BFGS", control = list(maxit = 100000))
+  r.opt <- optim(x_initial, fn = myFun, gr = myGrad, method = "BFGS", control = list(maxit = 100000))
   
   print(r.opt$value)
   print(r.opt$par)
   
-  addTitle = "Extended Freudenstein Roth Function dimension 50"
+  addTitle = "Rosenbrock Banana Function dimension 5"
   plot_MSE(c(1:length(Global$default.trace)),Global$default.trace,Global$new.trace, addTitle,FALSE)
   
   default_avg_MSE[iter] <- mean(Global$default.trace)

@@ -1,4 +1,4 @@
-plot_MSE <- function(x1,y1,y2,s,addLineType)
+plot_MSE <- function(x1,y1,y2,s,addLineType=FALSE)
 {
   library(ggplot2)
   library(viridis)
@@ -252,6 +252,21 @@ default.gr <- function(fn,x)
   return(res)
 }
 
+Schumer_Steiglitz <- function(x)
+{
+  res <- 0.0
+  n <-length(x)
+  return(sum(x[1:n]^4))
+}
+
+gr_Schumer_Steiglitz <- function(x)
+{
+  n <-length(x)
+  gr <- numeric(n)
+  gr[1:n] = 4*x[1:n]^3
+}
+
+
 #### ------> List of Functions
 # Rosenbrock_Banana
 # Extended_Trigonometric_dim5
@@ -260,9 +275,9 @@ default.gr <- function(fn,x)
 # Raydan_1
 # Raydan_2
 # FLETCHCR
-# DQDRTIC 
 # COSINE
 # Generalized_Quartic
+# Schumer_Steiglitz 
 
 ###Comparing exact gradient and numerical gradients
 
@@ -274,4 +289,4 @@ numDeriv::grad(fn,x)
 gr(x)
 
 ###Testing Plot Function
-plot_MSE(c(1:100),rnorm(100),rnorm(100))
+plot_MSE(c(1:100),rnorm(100),rnorm(100),FALSE)
