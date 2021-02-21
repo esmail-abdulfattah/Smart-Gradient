@@ -1,9 +1,23 @@
-gr.wrapper <- function (fn = NULL, enable = TRUE, verbose = FALSE, ...) {
+gr.wrapper <- function (fn = NULL, gr = NULL, enable = TRUE, verbose = FALSE, ...) {
     stopifnot(!is.null(fn))
 
     fun <- local({
+
+        gr.grad.default <- function(fun, x, h = 0.001) {
+            n <- length(x)
+            grad <- numeric(n)
+            e <- rep(0, n)
+            for(i in 1:n) {
+                e[] <- 0
+                e[i] <- 1
+                grad[i] <- (fun(x + h * e) - fun(x - h * e)) / (2 * h)
+            }
+            return (grad)
+        }
+
         grw <- list()
         grw$fn <- fn
+        grw$gr <- if (is.null(gr)) gr.grad.default else gr
         grw$par.prev <- c()
         grw$n <- 0
         grw$A <- matrix()
@@ -65,12 +79,27 @@ gr.wrapper <- function (fn = NULL, enable = TRUE, verbose = FALSE, ...) {
                 }
             }
 
-            gg <- numeric(grw$n)
-            for(i in 1:grw$n) {
+
+            if (TRUE) {
+                grw$par <- par
+                tmp.fn <- function(x) {
+                    n <- length(x)
+                    dpar <- rep(0, n)
+                    for(i in 1:n) {
+                        dpar <- dpar + x[i] * grw$AA[, i]
+                    }
+                    return (grw$fn(grw$par + dpar))
+                }
+                ## yes, always evaluate the gradient in zero(-vector)
+                gg <- grw$gr(tmp.fn, rep(0, grw$n))
+            } else {
+                ## old code
+                gg <- numeric(grw$n)
+                for(i in 1:grw$n) {
                 gg[i] <- (grw$fn(par + grw$step.len * grw$AA[, i]) -
                           grw$fn(par - grw$step.len * grw$AA[, i])) / (2 * grw$step.len)
+                }
             }
-            
             grad <- solve(t(grw$AA), gg)
             grw.par <<- grw
             return(grad)
@@ -79,7 +108,6 @@ gr.wrapper <- function (fn = NULL, enable = TRUE, verbose = FALSE, ...) {
     })
     return (fun)
 }
-
 f1 <- function(x) {   ## Rosenbrock Banana function with higher dimension 
   res = 0.0
   for(i in 1:(length(x)-1))
@@ -112,7 +140,7 @@ g1 <- function(x) {
 }
 
 Global <- list(err.trace = c(), default.trace = c(), new.trace = c())
-dim = 50
+dim <- 5
 x_initial = rnorm(dim, mean = 1, sd = 2)
 r.opt <- optim(x_initial, f1, g1, method = "BFGS", control = list(maxit = 100000))
 
