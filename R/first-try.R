@@ -115,8 +115,16 @@ f1 <- function(x) {   ## Rosenbrock Banana function with higher dimension
   return(res)
 }
 
-g1.new <- gr.wrapper(f1, enable = TRUE, verbose = FALSE)
-g1.plain <- gr.wrapper(f1, enable = FALSE)
+if (TRUE) {
+    ## use simple estimates
+    g1.new <- gr.wrapper(f1, enable = TRUE, verbose = FALSE)
+    g1.plain <- gr.wrapper(f1, enable = FALSE)
+} else {
+    ## use good estimates
+    library(numDeriv)
+    g1.new <- gr.wrapper(f1, gr = grad, enable = TRUE, verbose = FALSE)
+    g1.plain <- gr.wrapper(f1, gr = grad, enable = FALSE)
+}
 
 g1 <- function(x) {
     n <- length(x)
