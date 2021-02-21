@@ -83,12 +83,17 @@ gr.wrapper <- function (fn = NULL, gr = NULL, enable = TRUE, verbose = FALSE, ..
             if (TRUE) {
                 grw$par <- par
                 tmp.fn <- function(x) {
+                  if(TRUE)
+                  {
+                    dpar <- drop(grw$AA %*% x)
+                  } else{
                     n <- length(x)
                     dpar <- rep(0, n)
                     for(i in 1:n) {
-                        dpar <- dpar + x[i] * grw$AA[, i]
+                      dpar <- dpar + x[i] * grw$AA[, i]
                     }
-                    return (grw$fn(grw$par + dpar))
+                  }
+                  return (grw$fn(grw$par + dpar))
                 }
                 ## yes, always evaluate the gradient in zero(-vector)
                 gg <- grw$gr(tmp.fn, rep(0, grw$n))
