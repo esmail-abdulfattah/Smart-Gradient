@@ -73,7 +73,7 @@ gr.wrapper <- function (fn = NULL, enable = TRUE, verbose = FALSE, ...) {
       #               grw$fn(par - grw$step.len * grw$AA[, i])) / (2 * grw$step.len)}
       
       trans_fn <- function(x) {Gx = grw$AA%*%x; grw$fn(Gx)}
-      gg = mygrad(trans_fn, solve(grw$AA) %*% par)
+      gg = mygrad(trans_fn, solve(grw$AA,par))
 
       grad <- solve(t(grw$AA), gg)
       grw.par <<- grw
@@ -95,8 +95,8 @@ gr.wrapper <- function (fn = NULL, enable = TRUE, verbose = FALSE, ...) {
 # COSINE #D
 # Generalized_Quartic #D
 
-myFun <- Rosenbrock_Banana ### "Function Name"
-getExactGrad <- gr_Rosenbrock_Banana ### gr_"Function Name"
+myFun <- COSINE ### "Function Name"
+getExactGrad <- gr_COSINE ### gr_"Function Name"
 
 myGrad.new <- gr.wrapper(myFun, enable = TRUE, verbose = FALSE)
 myGrad.plain <- gr.wrapper(myFun, enable = FALSE)
@@ -112,10 +112,11 @@ myGrad <- function(x) {
   G <- get("Global", envir = .GlobalEnv)
   G$err.trace <- c(G$err.trace, err.new - err.default)
   G$default.trace <- c(G$default.trace, err.default)
+  G$new.trace <- c(G$new.trace, err.new)
+  
   G$x_trace_x1 = c(G$x_trace_x1,x[1]) 
   G$x_trace_x2 = c(G$x_trace_x2,x[2]) 
   G$y_trace = c(G$y_trace,Rosenbrock_Banana(x))
-  G$new.trace <- c(G$new.trace, err.new)
   assign("Global", G, envir = .GlobalEnv)
   
   return (g)
@@ -141,7 +142,7 @@ mygrad <- function(f,x)
 for(iter in 1:iterations)
 {
   Global <- list(err.trace = c(), default.trace = c(), new.trace = c(), x_trace_x1 = c(),x_trace_x2 = c(), y_trace = c())
-  dim = 5
+  dim = 2
   x_initial = rnorm(dim, mean = 1, sd = 2)
   r.opt <- optim(x_initial, fn = myFun, gr = myGrad, method = "BFGS", control = list(maxit = 100000))
   
