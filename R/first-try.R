@@ -1,29 +1,47 @@
-gr.wrapper <- function (fn = NULL, gr = NULL, enable = TRUE, verbose = FALSE, ...) {
+gr.wrapper <- function(fn = NULL, gr = NULL, gr.args = list(), ..., 
+                       .enable = TRUE, .verbose = FALSE)
+{
+    ## '...' are optional arguments to 'fn'
+    ## 'gr' is an optional generic gradient function of type: gr(fun, x, gr.args)
+    
     stopifnot(!is.null(fn))
+    is.empty.list <- function(a) {
+        if (!(is.null(a) || is.list(a))) {
+            ## wrong format, ignore
+            return (TRUE)
+        }
+        return (is.null(a) || (is.list(a) && length(a) == 0))
+    }
 
     fun <- local({
 
-        gr.grad.default <- function(fun, x, h = 0.001) {
+        gr.grad.default <- function(fun, x, step.size = 0.001, ...) {
+            gr.args <- list(...)
             n <- length(x)
             grad <- numeric(n)
             e <- rep(0, n)
             for(i in 1:n) {
                 e[] <- 0
                 e[i] <- 1
-                grad[i] <- (fun(x + h * e) - fun(x - h * e)) / (2 * h)
+                grad[i] <- (fun(x + step.size * e) - fun(x - step.size * e)) / (2 * step.size)
             }
             return (grad)
         }
 
         grw <- list()
         grw$fn <- fn
+        grw$fn.arg.name <- names(formals(fn))[1]
+        grw$fn.args <- list(...)
         grw$gr <- if (is.null(gr)) gr.grad.default else gr
+        grw$gr.arg.name <- names(formals(grw$gr))[2]
+        grw$gr.args <- if (is.empty.list(gr.args)) list() else gr.args
+
         grw$par.prev <- c()
         grw$n <- 0
         grw$A <- matrix()
         grw$AA <- matrix()
-        grw$enable <- enable
-        grw$verbose <- verbose
+        grw$enable <- .enable
+        grw$verbose <- .verbose
         grw$step.len <- 0.001
         grw$eps.sd <- .Machine$double.eps^(1/5)
         grw$iter <- 0
@@ -48,6 +66,7 @@ gr.wrapper <- function (fn = NULL, gr = NULL, enable = TRUE, verbose = FALSE, ..
         }
         
         gradient <- function(par, ...) {
+            gr.args <- list(...)
             grw <<- grw.par
             grw$iter <- grw$iter + 1
 
@@ -82,9 +101,19 @@ gr.wrapper <- function (fn = NULL, gr = NULL, enable = TRUE, verbose = FALSE, ..
             grw$par <- par
             tmp.fn <- function(x) {
                 dpar <- drop(grw$AA %*% x)
-                return (grw$fn(grw$par + dpar))
+                x <- grw$par + dpar
+                args <- c(list(x), grw$fn.args)
+                nm <- names(args)
+                nm[1] <- grw$fn.arg.name
+                names(args) <- nm
+                return (do.call(grw$fn, args = args))
             }
-            gg <- grw$gr(tmp.fn, rep(0, grw$n))
+            x <- rep(0, grw$n)
+            args <- c(tmp.fn, list(x), grw$gr.args, ...)
+            nm <- names(args)
+            nm[1:2] <- c("", grw$gr.arg.name)
+            names(args) <- nm
+            gg <- do.call(grw$gr, args = args)
             grad <- solve(t(grw$AA), gg)
             grw.par <<- grw
             return(grad)
@@ -94,25 +123,28 @@ gr.wrapper <- function (fn = NULL, gr = NULL, enable = TRUE, verbose = FALSE, ..
     return (fun)
 }
 
-f1 <- function(x) {   ## Rosenbrock Banana function with higher dimension 
-  res = 0.0
-  for(i in 1:(length(x)-1))
-      res = res + 100*(x[i+1] - x[i]^2)^2 + (1-x[i])^2
-  return(res)
+## I add an argument here, just to make sure it passes through correctly...
+f1 <- function(x, AA = 6) { 
+    stopifnot(AA == 7) 
+    res = 0.0
+    for(i in 1:(length(x)-1))
+        res = res + 100*(x[i+1] - x[i]^2)^2 + (1-x[i])^2
+    return(res)
 }
 
+## need to pass AA=7
 if (TRUE) {
     ## use simple estimates
-    g1.new <- gr.wrapper(f1, enable = TRUE, verbose = FALSE)
-    g1.plain <- gr.wrapper(f1, enable = FALSE)
+    g1.new <- gr.wrapper(f1, .enable = TRUE, .verbose = FALSE, AA = 7, gr.args = list(step.size = 0.00099))
+    g1.plain <- gr.wrapper(f1, .enable = FALSE, AA = 7)
 } else {
     ## use good estimates
     library(numDeriv)
-    g1.new <- gr.wrapper(f1, gr = grad, enable = TRUE, verbose = FALSE)
-    g1.plain <- gr.wrapper(f1, gr = grad, enable = FALSE)
+    g1.new <- gr.wrapper(f1, gr = grad, .enable = TRUE, .verbose = FALSE, AA = 7)
+    g1.plain <- gr.wrapper(f1, gr = grad, .enable = FALSE, AA = 7)
 }
 
-g1 <- function(x) {
+g1 <- function(x, ...) {
     n <- length(x)
     g <- numeric(n)
     for(i in 1:(n-1)) {
@@ -136,7 +168,7 @@ g1 <- function(x) {
 Global <- list(err.trace = c(), default.trace = c(), new.trace = c())
 dim <- 5
 x_initial = rnorm(dim, mean = 1, sd = 2)
-r.opt <- optim(x_initial, f1, g1, method = "BFGS", control = list(maxit = 100000))
+r.opt <- optim(x_initial, f1, g1, method = "BFGS", control = list(maxit = 100000), AA = 7)
 
 print(r.opt$value)
 print(r.opt$par)
