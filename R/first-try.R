@@ -37,7 +37,7 @@ gr.wrapper <- function (fn = NULL, gr = NULL, enable = TRUE, verbose = FALSE, ..
                 q <- G[,i]/r
                 G[,i] <- q
                 
-                if((i + 1) <= n) {
+                if ((i + 1) <= n) {
                     for (j in (i + 1):n) {
                         r <- sum(q * G[,j]) 
                         G[,j] <- G[,j] - r*q
@@ -79,32 +79,12 @@ gr.wrapper <- function (fn = NULL, gr = NULL, enable = TRUE, verbose = FALSE, ..
                 }
             }
 
-
-            if (TRUE) {
-                grw$par <- par
-                tmp.fn <- function(x) {
-                  if(TRUE)
-                  {
-                    dpar <- drop(grw$AA %*% x)
-                  } else{
-                    n <- length(x)
-                    dpar <- rep(0, n)
-                    for(i in 1:n) {
-                      dpar <- dpar + x[i] * grw$AA[, i]
-                    }
-                  }
-                  return (grw$fn(grw$par + dpar))
-                }
-                ## yes, always evaluate the gradient in zero(-vector)
-                gg <- grw$gr(tmp.fn, rep(0, grw$n))
-            } else {
-                ## old code
-                gg <- numeric(grw$n)
-                for(i in 1:grw$n) {
-                gg[i] <- (grw$fn(par + grw$step.len * grw$AA[, i]) -
-                          grw$fn(par - grw$step.len * grw$AA[, i])) / (2 * grw$step.len)
-                }
+            grw$par <- par
+            tmp.fn <- function(x) {
+                dpar <- drop(grw$AA %*% x)
+                return (grw$fn(grw$par + dpar))
             }
+            gg <- grw$gr(tmp.fn, rep(0, grw$n))
             grad <- solve(t(grw$AA), gg)
             grw.par <<- grw
             return(grad)
@@ -113,6 +93,7 @@ gr.wrapper <- function (fn = NULL, gr = NULL, enable = TRUE, verbose = FALSE, ..
     })
     return (fun)
 }
+
 f1 <- function(x) {   ## Rosenbrock Banana function with higher dimension 
   res = 0.0
   for(i in 1:(length(x)-1))
