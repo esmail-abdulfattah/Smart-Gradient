@@ -1,8 +1,17 @@
 gr.wrapper <- function(fn = NULL, gr = NULL, gr.args = list(), ..., 
                        .enable = TRUE, .verbose = FALSE)
 {
-    ## '...' are optional arguments to 'fn'
-    ## 'gr' is an optional generic gradient function of type: gr(fun, x, gr.args)
+    ## '...' are optional arguments to 'fn': fn(x, ...)
+
+    ## 'gr' is an optional generic gradient function of type: gr(fun, x, ...) where spesific
+    ## arguments to 'gr' needs to be passed in 'gr.args'. The '...' arguments to 'fn' in
+    ## 'gr.wrapper' are also passed to 'gr' since this is how its done in 'optim'. The function
+    ## to compute gradient for, is a wrapper function containing 'fn' hence do not need these
+    ## extra arguments. For every call to 'gr', the function to compute the gradient of will
+    ## change, and the point to compute the gradient is always rep(0, length(x)).
+
+    ## the default gradient function use a central differences with fixed step.size (argument
+    ## step.size=0.001)
     
     stopifnot(!is.null(fn))
     is.empty.list <- function(a) {
@@ -16,7 +25,7 @@ gr.wrapper <- function(fn = NULL, gr = NULL, gr.args = list(), ...,
     fun <- local({
 
         gr.grad.default <- function(fun, x, step.size = 0.001, ...) {
-            gr.args <- list(...)
+            not.used.args <- list(...)
             n <- length(x)
             grad <- numeric(n)
             e <- rep(0, n)
