@@ -1,7 +1,7 @@
 #' getFunList Function
 #'
 #' This function allows you to
-#' @param #love Do you love cats? Defaults to TRUE.
+#' @param
 #' @keywords Model
 #' @export
 #' @examples

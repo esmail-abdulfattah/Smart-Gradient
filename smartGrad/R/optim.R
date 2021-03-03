@@ -1,7 +1,7 @@
 #' optim Function
 #'
 #' This function allows you to
-#' @param #love Do you love cats? Defaults to TRUE.
+#' @param
 #' @keywords Model
 #' @export
 #' @examples
@@ -15,8 +15,6 @@ optim <- function(par, fn, gr = NULL, ...,
       lower = -Inf, upper = Inf,
       control = list(), hessian = FALSE, smart = TRUE, gr.args = list())
 {
-  #lapply(sys.call()[-1], as.character)$fn
-  #if (!is.null(gr)) formals(gr)$fun = fn
 
   library("stats")
   g1 <- .gr.wrapper(fn, gr = gr, .enable = smart, .verbose = FALSE, ..., gr.args = gr.args)
