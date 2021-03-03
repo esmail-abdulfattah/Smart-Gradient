@@ -67,13 +67,13 @@ gr.wrapper <- function (fn = NULL, enable = TRUE, verbose = FALSE, ...) {
         }
       }
       
-      # gg <- numeric(grw$n)
-      # for(i in 1:grw$n) {
-      #   gg[i] <- (grw$fn(par + grw$step.len * grw$AA[, i]) -
-      #               grw$fn(par - grw$step.len * grw$AA[, i])) / (2 * grw$step.len)}
-      
-      trans_fn <- function(x) {Gx = grw$AA%*%x; grw$fn(Gx)}
-      gg = mygrad(trans_fn, solve(grw$AA,par))
+      gg <- numeric(grw$n)
+      for(i in 1:grw$n) {
+        gg[i] <- (grw$fn(par + grw$step.len * grw$AA[, i]) -
+                    grw$fn(par - grw$step.len * grw$AA[, i])) / (2 * grw$step.len)}
+
+      #trans_fn <- function(x) {Gx = grw$AA%*%x; grw$fn(Gx)}
+      #gg = mygrad(trans_fn, solve(grw$AA,par))
 
       grad <- solve(t(grw$AA), gg)
       grw.par <<- grw
@@ -95,8 +95,8 @@ gr.wrapper <- function (fn = NULL, enable = TRUE, verbose = FALSE, ...) {
 # COSINE #D
 # Generalized_Quartic #D
 
-myFun <- COSINE ### "Function Name"
-getExactGrad <- gr_COSINE ### gr_"Function Name"
+myFun <- Rosenbrock_Banana ### "Function Name"
+getExactGrad <- gr_Rosenbrock_Banana### gr_"Function Name"
 
 myGrad.new <- gr.wrapper(myFun, enable = TRUE, verbose = FALSE)
 myGrad.plain <- gr.wrapper(myFun, enable = FALSE)
@@ -122,7 +122,7 @@ myGrad <- function(x) {
   return (g)
 }
 
-iterations = 1
+iterations = 100
 new_avg_MSE <- numeric(iterations)
 default_avg_MSE <- numeric(iterations)
 

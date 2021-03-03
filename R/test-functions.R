@@ -10,7 +10,7 @@ plot_MSE <- function(x1,y1,y2,s,addLineType=FALSE){
   
   p = p + scale_size_manual(values = c(1,2)) +
     #scale_color_manual(values = plasma(2)) +
-    theme(legend.position="bottom", legend.direction="horizontal",
+    theme(legend.position="bottom", legend.direction="horizontal", 
           legend.title = element_blank(),panel.grid.major = element_line(size = 0.5, linetype = 'solid',colour = "white")) +
     labs(y="Mean Absolute Error", x = "Iterations") + 
     ggtitle(s)
@@ -156,8 +156,7 @@ Rosenbrock_Banana <- function(x) {
   return(res)
 }
 
-gr_Rosenbrock_Banana <- function(x)
-{
+gr_Rosenbrock_Banana <- function(x){
   n <- length(x)
   g <- numeric(n)
   for(i in 1:(n-1)) {
@@ -167,8 +166,7 @@ gr_Rosenbrock_Banana <- function(x)
   return(g)
 }
 
-Extended_Trigonometric_dim5 <- function(x)
-{
+Extended_Trigonometric_dim5 <- function(x){
   res <- 0.0
   n <- length(x)
   for(i in 1:n) {
@@ -178,8 +176,7 @@ Extended_Trigonometric_dim5 <- function(x)
   return(res)
 }
 
-gr_Extended_Trigonometric_dim5 <- function(x)
-{
+gr_Extended_Trigonometric_dim5 <- function(x){
   gr <- numeric(5)
   gr[1] <- 4*cos(x[1])^2 + 2*cos(x[1])*(-6 + cos(x[2]) + cos(x[3]) +
           cos(x[4]) + cos(x[5]) - 7*sin(x[1])) - 2*sin(x[1])*(-46 + 8*cos(x[2]) +
@@ -202,8 +199,7 @@ gr_Extended_Trigonometric_dim5 <- function(x)
   return(gr)
 }
 
-Extended_Freudenstein_Roth <- function(x)
-{
+Extended_Freudenstein_Roth <- function(x){
   res <- 0.0
   n <-length(x)
   for(i in 1:(n/2))
@@ -215,8 +211,7 @@ Extended_Freudenstein_Roth <- function(x)
   return(res)
 }
 
-gr_Extended_Freudenstein_Roth <- function(x)
-{
+gr_Extended_Freudenstein_Roth <- function(x){
   n <-length(x)
   gr <- numeric(n)
   gr[1] <- 4*(-21 +x[1] - 8*x[2] + 3*x[2]^2)
@@ -232,8 +227,7 @@ gr_Extended_Freudenstein_Roth <- function(x)
   return(gr)
 }
 
-Perturbed_Quadratic <- function(x)
-{
+Perturbed_Quadratic <- function(x){
   res <- 0.0
   n <-length(x)
   c1 <- 1:n
@@ -241,8 +235,7 @@ Perturbed_Quadratic <- function(x)
   return(sum(c1*c2) + (1/100)*sum(x)^2)
 }
 
-gr_Perturbed_Quadratic <- function(x)
-{
+gr_Perturbed_Quadratic <- function(x){
   gr <- numeric(length(x))
   n <-length(x)
   c <- sum(x)
@@ -250,44 +243,38 @@ gr_Perturbed_Quadratic <- function(x)
   return(gr)
 }
 
-Raydan_1 <- function(x)
-{
+Raydan_1 <- function(x){
   n <-length(x)
   return(sum(((1:n)/10)*(exp(x) -x)))
 }
 
-gr_Raydan_1 <- function(x)
-{
+gr_Raydan_1 <- function(x){
   n <-length(x)
   gr <- numeric(n)
   for(i in 1:n) gr[i] <- (i/10)*(-1 + exp(x[i]))
   return(gr)
 }
 
-Raydan_2 <- function(x)
-{
+Raydan_2 <- function(x){
   n <-length(x)
   return(sum((exp(x) -x)))
 }
 
-gr_Raydan_2 <- function(x)
-{
+gr_Raydan_2 <- function(x){
   n <-length(x)
   gr <- numeric(n)
   for(i in 1:n) gr[i] <- (-1 + exp(x[i]))
   return(gr)
 }
 
-FLETCHCR <- function(x)
-{
+FLETCHCR <- function(x){
   res <- 0.0
   n <-length(x)
   for(i in 1:(n-1)) res <- res + 100*(x[i+1] - x[i] + 1 - x[i]^2)^2
   return(res)
 }
 
-gr_FLETCHCR <- function(x)
-{
+gr_FLETCHCR <- function(x){
   n <-length(x)
   gr <- numeric(n)
   gr[1] <- 200*(-1 - x[1] + 3*x[1]^2 + 2*x[1]^3 - x[2]  - 2*x[1]*x[2])
@@ -311,16 +298,14 @@ gr_FLETCHCR <- function(x)
   return(gr)
 }
 
-COSINE <- function(x)
-{
+COSINE <- function(x){
   res <- 0.0
   n <-length(x)
   for(i in 1:(n-1)) res <- res + cos(-0.5*x[i+1] + x[i]^2)
   return(res)
 }
 
-gr_COSINE <- function(x)
-{
+gr_COSINE <- function(x){
   n <-length(x)
   gr <- numeric(n)
   gr[1] <- -2*sin(x[1]^2 - 0.5*x[2])*x[1]
@@ -336,16 +321,14 @@ gr_COSINE <- function(x)
   return(gr)
 }
 
-Generalized_Quartic <- function(x)
-{
+Generalized_Quartic <- function(x){
   res <- 0.0
   n <-length(x)
   for(i in 1:(n-1)) res <- res + (x[i]^2 + (x[i+1] + x[i]^2)^2)
   return(res)
 }
 
-gr_Generalized_Quartic <- function(x)
-{
+gr_Generalized_Quartic <- function(x){
   n <-length(x)
   gr <- numeric(n)
   gr[1] <- 2*(x[1] + 2*x[1]^3 + 2*x[1]*x[2])
@@ -360,8 +343,7 @@ gr_Generalized_Quartic <- function(x)
   return(gr)
 }
 
-default.gr <- function(fn,x)
-{
+default.gr <- function(fn,x){
   s = 1e-3
   res = numeric(length(x))
   for(i in 1:length(x))
@@ -373,20 +355,49 @@ default.gr <- function(fn,x)
   return(res)
 }
 
-Schumer_Steiglitz <- function(x)
-{
+Schumer_Steiglitz <- function(x){
   res <- 0.0
   n <-length(x)
   return(sum(x[1:n]^4))
 }
 
-gr_Schumer_Steiglitz <- function(x)
-{
+gr_Schumer_Steiglitz <- function(x){
   n <-length(x)
   gr <- numeric(n)
   gr[1:n] = 4*x[1:n]^3
+  return(gr)
+  
 }
 
+
+ackley2 <- function(x){
+  return(-200*exp(-0.02*sqrt(x[1]^2+ x[2]^2)))
+}
+
+gr_ackley2 <- function(x){
+  gr <- numeric(2)
+  c1 <- sqrt(x[1]^2+ x[2]^2)
+  c2 <- exp(-0.02*c1)
+  gr[1] = 4*x[1]*c2/c1
+  gr[2] = 4*x[2]*c2/c1
+  
+  return(gr)
+}
+
+ackley3 <- function(x){
+  return(200*exp(-0.02*sqrt(x[1]^2 + x[2]^2)) + 5*exp(cos(3*x[1])+sin(3*x[2])))
+}
+
+gr_ackley3 <- function(x){
+  gr <- numeric(2)
+  c1 <- sqrt(x[1]^2+ x[2]^2)
+  c2 <- -4*exp(-0.02*c1)/c1
+  c3 <- 15*exp(cos(3*x[1]) + sin(3*x[2]))
+  gr[1] = -c3*sin(3*x[1]) + x[1]*c2
+  gr[2] = c3*cos(3*x[2]) + x[2]*c2
+  
+  return(gr)
+}
 
 #### ------> List of Functions
 # Rosenbrock_Banana
@@ -399,12 +410,14 @@ gr_Schumer_Steiglitz <- function(x)
 # COSINE
 # Generalized_Quartic
 # Schumer_Steiglitz 
+# ackley2
+# ackley3
 
 ###Comparing exact gradient and numerical gradients
 
-fn <- Raydan_2  
-gr <- gr_Raydan_2   #gr_"functionName"
-x = 1:10
+fn <- ackley3  
+gr <- gr_ackley3  #gr_"functionName"
+x = 1:2
 default.gr(fn,x)              
 numDeriv::grad(fn,x)
 gr(x)
