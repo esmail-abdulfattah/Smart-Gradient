@@ -5,9 +5,9 @@ Authors@R:
     person(given = "First",
            family = "Last",
            role = c("aut", "cre"),
-           email = "esmail.abdulfattah@kaust.edu.sa",
+           email = "first.last@example.com",
            comment = c(ORCID = "YOUR-ORCID-ID"))
-Description: A limited-memory technique for improving the accuracy of a  numerically  computed  gradient  by  exploiting  (1)  a  coordinate  transforma-tion of the gradient and (2) the history of previously taken descent directions.The method is verified empirically by extensive experimentation on both testfunctions and on real data applications. 
+Description: What the package does (one paragraph).
 License: `use_mit_license()`, `use_gpl3_license()` or friends to
     pick a license
 Encoding: UTF-8

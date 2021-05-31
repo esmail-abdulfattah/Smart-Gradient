@@ -9,22 +9,51 @@ optim(
   fn,
   gr = NULL,
   ...,
-  method = c("Nelder-Mead", "BFGS", "CG", "L-BFGS-B", "SANN", "Brent"),
-  lower = -Inf,
-  upper = Inf,
   control = list(),
   hessian = FALSE,
   smart = TRUE,
-  gn.args = list()
+  gr.args = list()
 )
 }
 \arguments{
-\item{#love}{Do you love cats? Defaults to TRUE.}
+\item{fn}{A function to be minimized (or maximized),}
+
+\item{gr}{is an optional generic gradient function of type: gr(fun, x, ...) and it returns the gradient for the "BFGS"
+
+The default gradient function use a central differences with fixed step.size (argument step.size=0.001)}
+
+\item{control}{a list of control parameters. See stats::optim function for details.}
+
+\item{hessian}{Logical. Do you want to return the hessian?}
+
+\item{smart}{Logical. Do you want to applay Smart Gradient Technique on the gradient. Default is TRUE.}
+
+\item{gr.args}{Specific arguments to 'gr' needs to be passed.}
+
+\item{'...'}{are optional arguments to 'fn': fn(x, ...)}
 }
 \description{
-This function allows you to
+The function to compute gradient for, is a wrapper function containing 'fn' hence do not need these extra arguments. For every call to 'gr', the function to compute the gradient of will change, and the point to compute the gradient is always rep(0, length(x)).
+}
+\details{
+More details about this function can be found in stats::optim.
 }
 \examples{
-optim()
+myfun <- function(x) { 100 * (x[2] - x[1]^2)^2 + (1 - x[1])^2}
+
+mygrad  <- function(fun,x) {
+ h = 0.001
+ grad <- numeric(2)
+ grad[1] <- (fun(x + c(h,0)) - fun(x - c(h,0))) / (2 * h)
+ grad[2] <- (fun(x + c(0,h)) - fun(x - c(0,h))) / (2 * h)
+ return (grad)
+}
+
+x_initial = rnorm(2)
+result  <- smartGrad::optim(par = x_initial,
+                           fn=myfun,
+                           gr = mygrad,
+                           method = c("BFGS"),
+                           smart = TRUE)
 }
 \keyword{Model}
