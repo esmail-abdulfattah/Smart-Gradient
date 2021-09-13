@@ -95,8 +95,8 @@ gr.wrapper <- function (fn = NULL, enable = TRUE, verbose = FALSE, ...) {
 # COSINE #D
 # Generalized_Quartic #D
 
-myFun <- Rosenbrock_Banana ### "Function Name"
-getExactGrad <- gr_Rosenbrock_Banana### gr_"Function Name"
+myFun <- Extended_Freudenstein_Roth ### "Function Name"
+getExactGrad <- gr_Extended_Freudenstein_Roth### gr_"Function Name"
 
 myGrad.new <- gr.wrapper(myFun, enable = TRUE, verbose = FALSE)
 myGrad.plain <- gr.wrapper(myFun, enable = FALSE)
@@ -122,7 +122,7 @@ myGrad <- function(x) {
   return (g)
 }
 
-iterations = 100
+iterations = 1
 new_avg_MSE <- numeric(iterations)
 default_avg_MSE <- numeric(iterations)
 
@@ -142,7 +142,7 @@ mygrad <- function(f,x)
 for(iter in 1:iterations)
 {
   Global <- list(err.trace = c(), default.trace = c(), new.trace = c(), x_trace_x1 = c(),x_trace_x2 = c(), y_trace = c())
-  dim = 2
+  dim = 5
   x_initial = rnorm(dim, mean = 1, sd = 2)
   r.opt <- optim(x_initial, fn = myFun, gr = myGrad, method = "BFGS", control = list(maxit = 100000))
   

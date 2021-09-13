@@ -1,8 +1,8 @@
 .gr.wrapper <- function(fn = NULL, gr = NULL, gr.args = list(), ...,
-                        .enable = TRUE, .verbose = FALSE)
+                       .enable = TRUE, .verbose = FALSE)
 {
   ## '...' are optional arguments to 'fn': fn(x, ...)
-  ## 'gr' is an optional generic gradient function of type: gr(fun, x, ...) where specific
+  ## 'gr' is an optional generic gradient function of type: gr(fun, x, ...) where spesific
   ## arguments to 'gr' needs to be passed in 'gr.args'. The '...' arguments to 'fn' in
   ## 'gr.wrapper' are also passed to 'gr' since this is how its done in 'optim'. The function
   ## to compute gradient for, is a wrapper function containing 'fn' hence do not need these
@@ -130,57 +130,3 @@
   })
   return (fun)
 }
-
-.reset.gr.wrapper <- function(fn = NULL, gr = NULL, gr.args = list(), ...,
-                        .enable = TRUE, .verbose = FALSE)
-{
-
-  stopifnot(!is.null(fn))
-  is.empty.list <- function(a) {
-    if (!(is.null(a) || is.list(a))) {
-      ## wrong format, ignore
-      return (TRUE)
-    }
-    return (is.null(a) || (is.list(a) && length(a) == 0))
-  }
-
-  fun <- local({
-
-    gr.grad.default <- function(fun, x, step.size = 0.001, ...) {
-      not.used.args <- list(...)
-      n <- length(x)
-      grad <- numeric(n)
-      e <- rep(0, n)
-      for(i in 1:n) {
-        e[] <- 0
-        e[i] <- 1
-        grad[i] <- (fun(x + step.size * e) - fun(x - step.size * e)) / (2 * step.size)
-      }
-      return (grad)
-    }
-
-    grw <- list()
-    grw$fn <- fn
-    grw$fn.arg.name <- names(formals(fn))[1]
-    grw$fn.args <- list(...)
-    grw$gr <- if (is.null(gr)) gr.grad.default else gr
-    grw$gr.arg.name <- names(formals(grw$gr))[2]
-    grw$gr.args <- if (is.empty.list(gr.args)) list() else gr.args
-
-    grw$par.prev <- c()
-    grw$n <- 0
-    grw$A <- matrix()
-    grw$AA <- matrix()
-    grw$enable <- .enable
-    grw$verbose <- .verbose
-    grw$step.len <- 0.001
-    grw$eps.sd <- .Machine$double.eps^(1/5)
-    grw$iter <- 0
-    grw.par <- grw
-
-  })
-  return (fun)
-}
-
-
-
