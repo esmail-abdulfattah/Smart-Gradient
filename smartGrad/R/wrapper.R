@@ -1,5 +1,5 @@
 .gr.wrapper <- function(fn = NULL, gr = NULL, gr.args = list(), ...,
-                        .enable = TRUE, .verbose = FALSE)
+                       .enable = TRUE, .verbose = FALSE)
 {
   ## '...' are optional arguments to 'fn': fn(x, ...)
   ## 'gr' is an optional generic gradient function of type: gr(fun, x, ...) where specific
@@ -74,6 +74,7 @@
     }
 
     gradient <- function(par, ...) {
+
       gr.args <- list(...)
       grw <<- grw.par
       grw$iter <- grw$iter + 1
@@ -114,16 +115,19 @@
         nm <- names(args)
         nm[1] <- grw$fn.arg.name
         names(args) <- nm
+
         return (do.call(grw$fn, args = args))
       }
+
       x <- rep(0, grw$n)
-      args <- c(tmp.fn, list(x), grw$gr.args, ...)
+      args <- c(tmp.fn, list(x), grw$gr.args, gr.args)
       nm <- names(args)
       nm[1:2] <- c("", grw$gr.arg.name)
       names(args) <- nm
       gg <- do.call(grw$gr, args = args)
       grad <- solve(t(grw$AA), gg)
       grw.par <<- grw
+
       return(grad)
     }
     return(gradient)
@@ -132,7 +136,7 @@
 }
 
 .reset.gr.wrapper <- function(fn = NULL, gr = NULL, gr.args = list(), ...,
-                        .enable = TRUE, .verbose = FALSE)
+                              .enable = TRUE, .verbose = FALSE)
 {
 
   stopifnot(!is.null(fn))
@@ -181,6 +185,3 @@
   })
   return (fun)
 }
-
-
-
