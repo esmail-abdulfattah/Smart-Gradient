@@ -9,30 +9,32 @@
 #' @export
 #' @examples
 #'
-#' library(lbfgs)
-#' library(stats)
-#'
-#' myfun <- function(x) { 100 * (x[2] - x[1]^2)^2 + (1 - x[1])^2}
-#'
-#' mygrad  <- function(fun,x) {
-#'   h = 0.001
-#'   grad <- numeric(2)
-#'   grad[1] <- (fun(x + c(h,0)) - fun(x - c(h,0))) / (2 * h)
-#'   grad[2] <- (fun(x + c(0,h)) - fun(x - c(0,h))) / (2 * h)
-#'   return (grad)
+#' myfun <- function(x) {
+#' res <- 0.0
+#' for(i in 1:(length(x)-1))
+#' res <- res + 100*(x[i+1] - x[i]^2)^2 + (1-x[i])^2
+#' return(res)
 #' }
+#' mygrad <- function(fun,x){
+#'    h = 1e-3
+#'    grad <- numeric(length(x))
+#'    for(i in 1:length(x)){
+#'      e = numeric(length(x))
+#'      e[i] = 1
+#'      grad[i] <- (fun(x+h*e) - fun(x-h*e))/(2*h)
+#'    }
+#'    return(grad)
+#' }
+#' 
 #'
-#' mySmartgrad = smartGrad::makeSmart(fn = myfun,
-#'                                    gr = mygrad)
-#'
-#' x_initial = rnorm(2)
-#' result1 <- stats::optim(par = x_initial,
-#'                         fn = myfun,
-#'                         gr = mySmartgrad,
-#'                         method = c("BFGS"),
-#'                         hessian = FALSE)
-#'
-#' result2 <- lbfgs::lbfgs(myfun, mySmartgrad, vars = x_initial)
+#' library("stats")
+#' library("smartGrad")
+#' x_dimension = 5
+#' x_initial = rnorm(x_dimension)
+#' result <- optim(par = x_initial,
+#'                 fn = myfun,
+#'                 gr = makeSmart(fn = myfun,gr = mygrad),
+#'                 method = c("BFGS"))
 
 #--------------------------------------------------------------------->
 
