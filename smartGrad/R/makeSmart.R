@@ -15,13 +15,13 @@
 #' res <- res + 100*(x[i+1] - x[i]^2)^2 + (1-x[i])^2
 #' return(res)
 #' }
-#' mygrad <- function(fun,x){
+#' mygrad <- function(wrapper.myfun,x){
 #'    h = 1e-3
 #'    grad <- numeric(length(x))
 #'    for(i in 1:length(x)){
 #'      e = numeric(length(x))
 #'      e[i] = 1
-#'      grad[i] <- (fun(x+h*e) - fun(x-h*e))/(2*h)
+#'      grad[i] <- (wrapper.myfun(x+h*e) - wrapper.myfun(x-h*e))/(2*h)
 #'    }
 #'    return(grad)
 #' }
